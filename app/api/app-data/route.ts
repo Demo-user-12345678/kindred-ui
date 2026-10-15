@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { current_interests, current_user, members, pair_requests, schedule_slots, workshops, calendar_days } from '@/lib/mock-data'
-import { read_all_items, save_item, key_for } from '@/lib/dynamodb'
+import { ensure_table, read_all_items, save_item, key_for } from '@/lib/dynamodb'
 
 const seed_items = [
   { id: 'app:current-user', entity: 'current_user', data: current_user },
@@ -25,6 +25,7 @@ async function ensure_seeded() {
 
 export async function GET() {
   try {
+    await ensure_table()
     const items = await ensure_seeded()
     const by_entity = Object.fromEntries(items.filter((item) => item.entity).map((item) => [item.entity, item.data]))
     return NextResponse.json(by_entity)
@@ -36,6 +37,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await ensure_table()
     const payload = await request.json()
     if (payload?.type !== 'booking' || !payload.booking?.workshop?.id) {
       return NextResponse.json({ error: 'Invalid booking payload' }, { status: 400 })
@@ -44,11 +46,10 @@ export async function POST(request: Request) {
     const booking_id = `booking:${crypto.randomUUID()}`
     await save_item(with_key({
       id: booking_id,
-      entity: 'booking',
-      user_id: 'demo-user',
+      entity: 'confirmation',
       booking: payload.booking,
       created_at: new Date().toISOString(),
-    }))
+    }), true)
 
     return NextResponse.json({ id: booking_id }, { status: 201 })
   } catch (error) {
