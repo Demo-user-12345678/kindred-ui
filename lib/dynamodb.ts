@@ -2,15 +2,16 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
 import { DynamoDBDocumentClient, GetCommand, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { awsCredentialsProvider } from '@vercel/functions/oidc'
 
+const aws_region = process.env.AWS_REGION || 'us-east-1'
 const table_name = process.env.DYNAMODB_TABLE_NAME
 const partition_key = process.env.DYNAMODB_TABLE_PARTITION_KEY || 'id'
 const sort_key = process.env.DYNAMODB_TABLE_SORT_KEY
 
 const client = new DynamoDBClient({
-  region: process.env.AWS_REGION,
+  region: aws_region,
   credentials: awsCredentialsProvider({
     roleArn: process.env.AWS_ROLE_ARN,
-    clientConfig: { region: process.env.AWS_REGION },
+    clientConfig: { region: aws_region },
   }),
 })
 
