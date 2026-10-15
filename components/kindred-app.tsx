@@ -60,8 +60,16 @@ export function KindredApp() {
 
   // From schedule: confirm the chosen date + time
   function confirm_booking(date: string, time: string) {
-    set_booking((b) => ({ ...b, date, time }))
+    const next_booking = { ...booking, date, time }
+    set_booking(next_booking)
     set_screen('confirmation')
+    void fetch('/api/app-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'booking', booking: next_booking }),
+    }).catch((error) => {
+      console.error('[v0] Booking persistence failed:', error)
+    })
   }
 
   function reset() {
