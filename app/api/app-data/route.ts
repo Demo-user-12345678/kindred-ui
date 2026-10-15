@@ -45,7 +45,7 @@ export async function POST(request: Request) {
     await save_item(with_key({
       id: booking_id,
       entity: 'booking',
-      user_id: 'demo-user',
+      confirmation_type: 'workshop_booking',
       booking: payload.booking,
       created_at: new Date().toISOString(),
     }))
